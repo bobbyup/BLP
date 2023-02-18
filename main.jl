@@ -13,6 +13,8 @@ include("demandAnalysis.jl")
 
 #Generate observables X, p, s, W, J
 X, p, s, W, Z = generate_Data()
+display(p)
+display(s)
 
 stopher
 #
