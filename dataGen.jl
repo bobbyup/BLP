@@ -44,34 +44,21 @@ function generate_Data()
     γ = [2,1,1]
 
     X = Array{Float64}(undef, 3, nJ, nM) 
-    #Make the rows j and columns m
     X[1,:,:] .= ones(size(X)[2:3])
     X[2,:,:] .= rand(Uniform(0,1), size(X)[2:3])
-
     X[3,:,:] .= rand(Normal(0,1), size(X)[2:3])
-    #display(X[3,:,:])
-
-
     ξ = rand(Normal(0,1), nJ, nM)
-    #display(ξ)
     ν_vec = rand(LogNormal(0,1), nPop)
-    #display(ν_vec)
-
     W = rand(LogNormal(0,1), nJ)
-    #display(W)
     Z = rand(LogNormal(0,1), nJ, nM)
-    #display(Z)
-
     η = rand(LogNormal(0,1), nJ,nM)
-    #display(η)
-    #display(γ) 
+
     MC = γ[1] .+ γ[2] .* repeat(W,1,nM).+ γ[3] .* Z + η
+
     p = fixedpoint(p -> firm_behavior(p, X = X, ν_vec = ν_vec, MC = MC, σ_α = σ_α, α = α, β =β,
         ξ =ξ), ones(nJ, nM)).zero
-
     s = firm_behavior(p, X = X, ν_vec = ν_vec, MC = MC, σ_α = σ_α, α = α, β =β,
         ξ =ξ, return_share = true)[1]
-    display(p - MC)
     return X, p, s, W, Z
 end
 

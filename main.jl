@@ -3,7 +3,7 @@ using Random, Distributions
 using BenchmarkTools, Profile
 using NLsolve, Optim, LinearAlgebra
 
-nPop = 1000
+nPop = 10000
 nJ = 3
 nM = 100
 Random.seed!(111)
@@ -15,8 +15,7 @@ include("demandAnalysis.jl")
 X, p, s, W, Z = generate_Data()
 display(p)
 display(s)
-
-stopher
+sotpher
 #
 δ =  fixedpoint(δ -> δ .+ log.(s.+eps(Float64)) .- log.(generate_shares(δ).+eps(Float64)), zeros(nJ, nM))
 stopher
