@@ -15,6 +15,15 @@ function generate_f_δ(p::Matrix{Float64}; δ = δ, ν = ν, σ_α = σ_α)
     end
     return f_δ
 end
+function generate_f_δ(p::SMatrix{nJ, nM, Float64, nJ*nM}; δ = δ, ν = ν, σ_α = σ_α)
+    #This function is the slow down, attempt to optimize as will be useful
+    f_δ = ones(Float64, size(p)[1], size(p)[2])
+    for m in 1:size(p)[2]
+        f_δ[:,m] = exp.(δ[:,m] .- σ_α .* p[:,m].*ν)./(1+ sum(exp.(δ[:,m] .- σ_α .* p[:,m]*ν)) )
+    end
+    return f_δ
+end
+
 
 
 function firm_behavior(p::Matrix{Float64}; ν_vec= ν_vec, MC = MC, σ_α = σ_α,β = β, X=X, α = α, ξ = ξ, return_share = false)
@@ -59,6 +68,14 @@ function generate_Data()
         ξ =ξ), ones(nJ, nM)).zero
     s = firm_behavior(p, X = X, ν_vec = ν_vec, MC = MC, σ_α = σ_α, α = α, β =β,
         ξ =ξ, return_share = true)[1]
-    return X, p, s, W, Z
+    p = SMatrix{3,100}(p)
+    s = SMatrix{3,100}(s)
+    W = SMatrix{3,1}(W)
+    Z = SMatrix{3,100}(Z)
+    X1 = SMatrix{3,100}(X[1,:,:])
+    X2 = SMatrix{3,100}(X[2,:,:])
+    X3 = SMatrix{3,100}(X[3,:,:])
+
+    return X1, X2, X3, p, s, W, Z
 end
 
