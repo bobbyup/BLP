@@ -3,13 +3,14 @@
 
 
 
-function generate_δ(p::Matrix{Float64}; X = X, β = β, ξ = ξ, α = α)
+function generate_δ(p; X = X, β = β, ξ = ξ, α = α)
     return X[1,:,:] .* β[1] .+ X[2,:,:] .* β[2] .+ X[3,:,:] .* β[3] .- α .* p .+ ξ
 end
 
+
 function generate_f_δ(p::Matrix{Float64}; δ = δ, ν = ν, σ_α = σ_α)
     #This function is the slow down, attempt to optimize as will be useful
-    f_δ = ones(Float64, size(p)[1], size(p)[2])
+    f_δ = zeros(Float64, size(p)[1], size(p)[2])
     for m in 1:size(p)[2]
         f_δ[:,m] = exp.(δ[:,m] .- σ_α .* p[:,m].*ν)./(1+ sum(exp.(δ[:,m] .- σ_α .* p[:,m]*ν)) )
     end
@@ -48,8 +49,8 @@ end
 
 function generate_Data()
     β = [5,1,1]
-    α = 1
-    σ_α = 1
+    α = 1.0
+    σ_α = 1.0
     γ = [2,1,1]
 
     X = Array{Float64}(undef, 3, nJ, nM) 
@@ -66,16 +67,15 @@ function generate_Data()
 
     p = fixedpoint(p -> firm_behavior(p, X = X, ν_vec = ν_vec, MC = MC, σ_α = σ_α, α = α, β =β,
         ξ =ξ), ones(nJ, nM)).zero
+    display(generate_δ(p, X = X, ξ = ξ, β = β, α = α))
+    δ_cool = generate_δ(p, X = X, ξ = ξ, β = β, α = α)
+    display(generate_shares(δ_cool, σ_α, p = p,
+        ν_vec = ν_vec))
     s = firm_behavior(p, X = X, ν_vec = ν_vec, MC = MC, σ_α = σ_α, α = α, β =β,
         ξ =ξ, return_share = true)[1]
-    p = SMatrix{3,100}(p)
-    s = SMatrix{3,100}(s)
-    W = SMatrix{3,1}(W)
-    Z = SMatrix{3,100}(Z)
-    X1 = SMatrix{3,100}(X[1,:,:])
-    X2 = SMatrix{3,100}(X[2,:,:])
-    X3 = SMatrix{3,100}(X[3,:,:])
-
-    return X1, X2, X3, p, s, W, Z
+    X1 = X[1,:,:]
+    X2 = X[2,:,:]
+    X3 = X[3,:,:]
+    return X1, X2, X3, p, s, W, Z, δ_cool, ν_vec 
 end
 
